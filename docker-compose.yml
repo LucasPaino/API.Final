@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  pokemon-api:
+    build: .
+    container_name: pokemon-api
+    ports:
+      - "8000:8000"
+    environment:
+      - POKEAPI_URL=https://pokeapi.co/api/v2/pokemon/
