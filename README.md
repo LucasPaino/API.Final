@@ -1,95 +1,62 @@
-# Pokémon API
+ Pokémon API com FastAPI
+ Descrição
 
-API simples para listar pokémons e obter detalhes de cada pokémon usando a [PokeAPI](https://pokeapi.co/).
+Esta é uma API RESTful desenvolvida com FastAPI que consome dados da PokeAPI
+ e os disponibiliza de forma estruturada e paginada.
 
----
+O projeto foi desenvolvido como atividade final de back-end em Python, aplicando conceitos como:
 
-## 📦 Tecnologias
+Construção de APIs com FastAPI
+Consumo de APIs externas
+Testes automatizados com pytest
+Dockerização
+CI/CD com GitHub Actions
+Deploy em produção
 
-- Python 3.13
-- FastAPI
-- Uvicorn
-- Requests
-- Pytest (com cobertura)
-- Black & Flake8 para formatação e linting
-- GitHub para versionamento
+ API em Produção
 
----
+ https://pokemon-api-tec5.onrender.com
 
-## 🚀 Instalação
+ Documentação (Swagger UI)
 
-1. Clone o repositório:
+ https://pokemon-api-tec5.onrender.com/docs
 
-```bash
-git clone https://github.com/LucasPaino/API.Final.git
-cd API.Final
+Use essa interface para testar todos os endpoints diretamente no navegador.
 
-Crie e ative o ambiente virtual:
+ Funcionalidades
+ Listagem paginada de pokémons
+ Detalhes de um pokémon específico
+ Criação de pokémons (local)
+ Atualização de pokémons (local)
+ Exclusão de pokémons (local)
+ Documentação automática com Swagger
 
-Windows (PowerShell):
+ Endpoints
 
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+ Listar Pokémons
 
-Windows (CMD):
+ GET /pokemons?limit=20&offset=0
 
-python -m venv .venv
-.\.venv\Scripts\activate
+Buscar Pokémon por ID
 
-Linux / MacOS:
+GET /pokemons/{id}
 
-python3 -m venv .venv
-source .venv/bin/activate
+Criar Pokémon
 
-Instale as dependências:
+POST /pokemons
 
-pip install -r requirements.txt
+Atualizar Pokémon
 
-Rodando a API
+PUT /pokemons/{id}
 
-uvicorn app.main:app --reload
+Deletar Pokémon
 
-A API estará disponível em http://127.0.0.1:8000
-.
+DELETE /pokemons/{id}
 
-O Swagger UI com a documentação interativa está em http://127.0.0.1:8000/docs
-.
 
-🛠️ Endpoints
-Listar Pokémons
-URL: /pokemons
-Método: GET
-Query params:
-limit (opcional, padrão=20)
-offset (opcional, padrão=0)
-Exemplo de request:
-
-GET /pokemons?limit=10&offset=0
-
-Resposta:
-
-{
-  "data": [
-    {"name": "bulbasaur", "url": "https://pokeapi.co/api/v2/pokemon/1/"},
-    {"name": "ivysaur", "url": "https://pokeapi.co/api/v2/pokemon/2/"}
-  ],
-  "pagination": {
-    "total": 1350,
-    "limit": 10,
-    "offset": 0,
-    "next": "https://pokeapi.co/api/v2/pokemon?offset=10&limit=10",
-    "previous": null
-  }
-}
-
-Detalhes de um Pokémon
-URL: /pokemons/{pokemon_id}
-Método: GET
-Exemplo de request:
+Exemplo de Resposta
 
 GET /pokemons/1
-
-Resposta:
 
 {
   "name": "bulbasaur",
@@ -103,23 +70,85 @@ Resposta:
   }
 }
 
-404 - Pokémon não encontrado:
+Como rodar localmente
+1. Clonar o repositório
 
-{"detail": "Pokemon not found"}
+git clone https://github.com/LucasPaino/API.Final.git
+cd API.Final
 
-Testes
+2. Criar ambiente virtual
 
-Rodar testes e verificar cobertura:
+python -m venv .venv
+
+3. Ativar ambiente virtual
+
+Windows:
+.\.venv\Scripts\Activate
+
+Linux/Mac:
+source .venv/bin/activate
+
+4. Instalar dependências
+
+pip install -r requirements.txt
+
+5. Rodar a aplicação
+
+uvicorn app.main:app --reload
+
+6. Acessar no navegador
+
+http://127.0.0.1:8000/docs
+
+
+ Testes
+
+Para rodar os testes:
 
 pytest --cov=app
 
-Todos os testes passam.
-Cobertura atual: 94%
-Lint e formatação
-Black para formatação automática:
 
-black app tests
+Cobertura atual: ~90%+
+Testes incluem:
+Listagem de pokémons
+Busca por ID
+Tratamento de erro (não encontrado)
+CRUD básico
 
-Flake8 para linting:
+ Docker
 
-flake8 app tests
+Build da imagem
+
+docker build -t pokemon-api .
+
+Rodar container
+
+docker run -p 8000:8000 pokemon-api
+
+ CI/CD
+
+O projeto utiliza GitHub Actions para:
+
+Instalar dependências
+Rodar testes automaticamente
+Verificar qualidade do código
+
+O deploy é feito automaticamente no Render a cada push na branch main.
+
+ Tecnologias utilizadas
+
+Python 3.13
+FastAPI
+Uvicorn
+Requests
+Pytest
+Pytest-cov
+Docker
+GitHub Actions
+Render
+
+ Observações
+
+Os dados são consumidos diretamente da PokeAPI
+Operações de criação, atualização e exclusão são simuladas localmente (sem persistência em banco)
+A API segue boas práticas REST e organização de projeto
