@@ -1,9 +1,9 @@
 import httpx
 
-BASE_URL = "https://pokeapi.co/api/v2/pokemon"
 
-async def fetch_pokemon(id: int):
+async def fetch_pokemon(pokemon_name: str):
+    url = f"https://pokeapi.co/api/v2/pokemon/{pokemon_name}"
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"{BASE_URL}/{id}")
+        response = await client.get(url)
         response.raise_for_status()
         return response.json()

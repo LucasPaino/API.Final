@@ -1,172 +1,71 @@
-# Pokémon API
+# Pokémon API - Python FastAPI
 
-API RESTful de Pokémon construída com **FastAPI**, **SQLAlchemy**, **Docker** e testes com **pytest**.  
-Consome dados da [PokeAPI](https://pokeapi.co/) e oferece endpoints paginados com persistência local via PostgreSQL.
-
----
-
-## 🛠 Funcionalidades
-
-- Listar pokémons paginados (`/pokemons`)
-- Detalhes de um pokémon (`/pokemons/{id}`)
-- Criação de pokémons no banco local
-- Exclusão de pokémons
-- Persistência com PostgreSQL via SQLAlchemy
-- Testes unitários com mocks da PokeAPI
-- Docker + docker-compose
-- CI/CD configurado para deploy automático (GitHub Actions)
-- Documentação automática via Swagger (`/docs`)
+API RESTful em Python que consome dados da [PokéAPI](https://pokeapi.co/) e disponibiliza informações de Pokémon de forma paginada.
 
 ---
 
-## 🚀 Tecnologias
+## Funcionalidades
 
-- Python 3.10+
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Docker & Docker Compose
-- Pytest + pytest-mock
-- Httpx
-- Python-dotenv
-- Alembic (migrações futuras)
-- GitHub Actions (CI/CD)
+- Listar pokémons com paginação (`GET /pokemons`)  
+- Buscar pokémon por ID (`GET /pokemons/{id}`)  
+- Persistência com banco relacional via SQLAlchemy ORM  
+- Estrutura modular, organizada e testável  
+- Testes unitários com `pytest`  
+- Lint com `flake8`  
+- Pipeline CI/CD pronta no GitHub Actions  
 
 ---
 
-## ⚙️ Como rodar localmente
+## Tecnologias
+
+- Python 3.13  
+- FastAPI  
+- SQLAlchemy ORM  
+- SQLite (para desenvolvimento e testes) / PostgreSQL (produção)  
+- Pytest / pytest-cov  
+- Flake8  
+- GitHub Actions (CI/CD)  
+
+---
+
+## Rodando localmente
 
 1. Clone o repositório:
 
 ```bash
-git clone <seu-repo-url>
+git clone https://github.com/LucasPaino/API.Final.git
 cd API.Final
-
 Crie e ative o ambiente virtual:
-
+# Linux/macOS
 python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# Linux/Mac
 source .venv/bin/activate
 
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
 Instale as dependências:
-
 pip install -r requirements.txt
-
-Configure variáveis de ambiente:
-
-Crie um arquivo .env na raiz:
-
-DATABASE_URL=postgresql://postgres:postgres@db:5432/pokemon
-
-Para testes unitários, crie .env.test:
-
-DATABASE_URL=sqlite:///./test.db
-
-Execute a API localmente:
-
+Rodar a aplicação:
 uvicorn app.main:app --reload
 
-Swagger UI disponível em: http://127.0.0.1:8000/docs
+Acesse http://127.0.0.1:8000/docs
+ para a documentação Swagger UI.
 
-🐳 Rodando com Docker
+Testes
 
-Certifique-se de ter Docker e Docker Compose instalados
+Executar todos os testes com cobertura:
 
-Execute:
+pytest --cov=app tests/
 
-docker-compose up --build
+O relatório de cobertura será gerado na pasta htmlcov/.
 
-A aplicação estará disponível em: http://localhost:8000/docs
+Deploy
 
-O banco PostgreSQL será criado automaticamente via Docker Compose
+A API já pode ser deployada em Render ou outro serviço compatível.
+Link de produção: https://pokemon-api-tec5.onrender.com/docs
 
-🧪 Testes
-
-Para rodar os testes unitários:
-
-pytest
-
-Cobrem:
-
-Sucesso dos endpoints
-Erros (404, dados inexistentes)
-
-Paginação
-
-Testes usam mocks para isolar chamadas à PokeAPI
-
-🌐 Deploy
-
-A API pode ser publicada em serviços como Render
- ou Railway.
-
-Link de produção (exemplo):
-
-https://pokemon-api-tec5.onrender.com/docs
-
-🔍 Exemplos de uso
-
-Listar Pokémons (paginação)
-
-GET /pokemons?limit=20&offset=0
-
-Resposta:
-
-{
-  "data": [
-    {
-      "name": "pikachu",
-      "id": 25,
-      "height": 4,
-      "weight": 60,
-      "types": ["electric"],
-      "sprites": {}
-    }
-  ],
-  "pagination": {
-    "total": null,
-    "limit": 20,
-    "offset": 0,
-    "next": "/pokemons?limit=20&offset=20",
-    "previous": null
-  }
-}
-Detalhes de um Pokémon
-
-GET /pokemons/25
-
-{
-  "name": "pikachu",
-  "id": 25,
-  "height": 4,
-  "weight": 60,
-  "types": ["electric"],
-  "sprites": {}
-}
-📂 Estrutura do projeto
-API.Final/
-├─ app/
-│  ├─ main.py
-│  ├─ models.py
-│  ├─ crud.py
-│  ├─ database.py
-│  ├─ schemas.py
-│  └─ services/pokeapi.py
-├─ tests/
-│  └─ test_main.py
-├─ .env
-├─ .env.test
-├─ Dockerfile
-├─ docker-compose.yml
-├─ requirements.txt
-└─ README.md
-
-🔧 Boas práticas
-
-Variáveis de ambiente para configuração de banco
-Testes isolados e com mocks
-Docker Compose para desenvolvimento e produção
-Documentação automática com Swagger
-CI/CD via GitHub Actions
+Observações
+Todos os endpoints usam banco relacional via SQLAlchemy, garantindo persistência de dados
+Código revisado para PEP8/flake8
+Testes unitários com mocks e cobertura incluída
+Variáveis de ambiente configuráveis via .env (ex: DATABASE_URL)
