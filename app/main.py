@@ -1,91 +1,71 @@
-from fastapi import FastAPI, HTTPException
-import requests
-from pydantic import BaseModel
-from typing import List, Dict
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app import models, schemas, crud
+from app.database import SessionLocal, engine, Base
+from app.services.pokeapi import fetch_pokemon
 
-app = FastAPI(title="Pokemon API", version="0.1.0")
+app = FastAPI(title="Pokémon API")
 
-POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon/"
+# Cria tabelas
+Base.metadata.create_all(bind=engine)
 
-# Schema para criação/atualização de Pokémon local
-class Pokemon(BaseModel):
-    name: str
-    height: int
-    weight: int
-    types: List[str]
-    sprites: Dict[str, str]
-
-
-# Armazenamento local simples para POST, PUT e DELETE
-local_pokemons: Dict[int, Pokemon] = {}
-next_id = 10000  # Começa em 10000 para não conflitar com PokeAPI
-
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @app.get("/pokemons")
-def list_pokemons(limit: int = 20, offset: int = 0):
-    response = requests.get(f"{POKEAPI_URL}?limit={limit}&offset={offset}")
-    if response.status_code != 200:
-        raise HTTPException(
-            status_code=500, detail="Error fetching from PokeAPI"
-        )
-    data = response.json()
+async def list_pokemons(limit: int = 10, offset: int = 0):
+    data = []
+    for i in range(offset + 1, offset + limit + 1):
+        try:
+            pokemon = await fetch_pokemon(i)
+            data.append({
+                "name": pokemon["name"],
+                "id": pokemon["id"],
+                "height": pokemon["height"],
+                "weight": pokemon["weight"],
+                "types": [t["type"]["name"] for t in pokemon["types"]],
+                "sprites": pokemon["sprites"]
+            })
+        except:
+            continue
+
     return {
-        "data": data["results"],
+        "data": data,
         "pagination": {
-            "total": data["count"],
             "limit": limit,
             "offset": offset,
-            "next": data["next"],
-            "previous": data["previous"],
-        },
+            "next": f"/pokemons?limit={limit}&offset={offset + limit}",
+            "previous": None if offset == 0 else f"/pokemons?limit={limit}&offset={offset - limit}"
+        }
     }
-
 
 @app.get("/pokemons/{pokemon_id}")
-def get_pokemon(pokemon_id: int):
-    # Primeiro checa se está no cache local
-    if pokemon_id in local_pokemons:
-        pokemon = local_pokemons[pokemon_id]
-        return {"id": pokemon_id, **pokemon.model_dump()}
-
-    response = requests.get(f"{POKEAPI_URL}{pokemon_id}")
-    if response.status_code != 200:
+async def get_pokemon_detail(pokemon_id: int):
+    try:
+        pokemon = await fetch_pokemon(pokemon_id)
+        return {
+            "name": pokemon["name"],
+            "id": pokemon["id"],
+            "height": pokemon["height"],
+            "weight": pokemon["weight"],
+            "types": [t["type"]["name"] for t in pokemon["types"]],
+            "sprites": pokemon["sprites"]
+        }
+    except:
         raise HTTPException(status_code=404, detail="Pokemon not found")
-    data = response.json()
-    return {
-        "name": data["name"],
-        "id": data["id"],
-        "height": data["height"],
-        "weight": data["weight"],
-        "types": [t["type"]["name"] for t in data["types"]],
-        "sprites": {
-            "front_default": data["sprites"]["front_default"],
-            "back_default": data["sprites"]["back_default"],
-        },
-    }
 
+@app.post("/pokemons", response_model=schemas.Pokemon)
+def create_pokemon(pokemon: schemas.PokemonCreate, db: Session = Depends(get_db)):
+    return crud.create_pokemon(db, pokemon)
 
-@app.post("/pokemons", status_code=201)
-def create_pokemon(pokemon: Pokemon):
-    global next_id
-    pokemon_dict = pokemon.model_dump()
-    local_pokemons[next_id] = pokemon
-    result = {"id": next_id, **pokemon_dict}
-    next_id += 1
-    return result
-
-
-@app.put("/pokemons/{pokemon_id}")
-def update_pokemon(pokemon_id: int, pokemon: Pokemon):
-    if pokemon_id not in local_pokemons:
+@app.delete("/pokemons/{pokemon_id}")
+def delete_pokemon(pokemon_id: int, db: Session = Depends(get_db)):
+    pokemon = crud.delete_pokemon(db, pokemon_id)
+    if not pokemon:
         raise HTTPException(status_code=404, detail="Pokemon not found")
-    updated = pokemon.model_dump()
-    local_pokemons[pokemon_id] = pokemon
-    return {"id": pokemon_id, **updated}
-
-
-@app.delete("/pokemons/{pokemon_id}", status_code=204)
-def delete_pokemon(pokemon_id: int):
-    if pokemon_id not in local_pokemons:
-        raise HTTPException(status_code=404, detail="Pokemon not found")
-    del local_pokemons[pokemon_id]
+    return {"ok": True}

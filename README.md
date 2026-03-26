@@ -1,154 +1,172 @@
- Pokémon API com FastAPI
- Descrição
+# Pokémon API
 
-Esta é uma API RESTful desenvolvida com FastAPI que consome dados da PokeAPI
- e os disponibiliza de forma estruturada e paginada.
+API RESTful de Pokémon construída com **FastAPI**, **SQLAlchemy**, **Docker** e testes com **pytest**.  
+Consome dados da [PokeAPI](https://pokeapi.co/) e oferece endpoints paginados com persistência local via PostgreSQL.
 
-O projeto foi desenvolvido como atividade final de back-end em Python, aplicando conceitos como:
+---
 
-Construção de APIs com FastAPI
-Consumo de APIs externas
-Testes automatizados com pytest
-Dockerização
-CI/CD com GitHub Actions
-Deploy em produção
+## 🛠 Funcionalidades
 
- API em Produção
+- Listar pokémons paginados (`/pokemons`)
+- Detalhes de um pokémon (`/pokemons/{id}`)
+- Criação de pokémons no banco local
+- Exclusão de pokémons
+- Persistência com PostgreSQL via SQLAlchemy
+- Testes unitários com mocks da PokeAPI
+- Docker + docker-compose
+- CI/CD configurado para deploy automático (GitHub Actions)
+- Documentação automática via Swagger (`/docs`)
 
- https://pokemon-api-tec5.onrender.com
+---
 
- Documentação (Swagger UI)
+## 🚀 Tecnologias
 
- https://pokemon-api-tec5.onrender.com/docs
+- Python 3.10+
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Docker & Docker Compose
+- Pytest + pytest-mock
+- Httpx
+- Python-dotenv
+- Alembic (migrações futuras)
+- GitHub Actions (CI/CD)
 
-Use essa interface para testar todos os endpoints diretamente no navegador.
+---
 
- Funcionalidades
- Listagem paginada de pokémons
- Detalhes de um pokémon específico
- Criação de pokémons (local)
- Atualização de pokémons (local)
- Exclusão de pokémons (local)
- Documentação automática com Swagger
+## ⚙️ Como rodar localmente
 
- Endpoints
+1. Clone o repositório:
 
- Listar Pokémons
-
- GET /pokemons?limit=20&offset=0
-
-Buscar Pokémon por ID
-
-GET /pokemons/{id}
-
-Criar Pokémon
-
-POST /pokemons
-
-Atualizar Pokémon
-
-PUT /pokemons/{id}
-
-Deletar Pokémon
-
-DELETE /pokemons/{id}
-
-
-Exemplo de Resposta
-
-GET /pokemons/1
-
-{
-  "name": "bulbasaur",
-  "id": 1,
-  "height": 7,
-  "weight": 69,
-  "types": ["grass", "poison"],
-  "sprites": {
-    "front_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
-    "back_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/1.png"
-  }
-}
-
-Como rodar localmente
-1. Clonar o repositório
-
-git clone https://github.com/LucasPaino/API.Final.git
+```bash
+git clone <seu-repo-url>
 cd API.Final
 
-2. Criar ambiente virtual
+Crie e ative o ambiente virtual:
 
 python -m venv .venv
-
-3. Ativar ambiente virtual
-
-Windows:
-.\.venv\Scripts\Activate
-
-Linux/Mac:
+# Windows
+.venv\Scripts\activate
+# Linux/Mac
 source .venv/bin/activate
 
-4. Instalar dependências
+Instale as dependências:
 
 pip install -r requirements.txt
 
-5. Rodar a aplicação
+Configure variáveis de ambiente:
+
+Crie um arquivo .env na raiz:
+
+DATABASE_URL=postgresql://postgres:postgres@db:5432/pokemon
+
+Para testes unitários, crie .env.test:
+
+DATABASE_URL=sqlite:///./test.db
+
+Execute a API localmente:
 
 uvicorn app.main:app --reload
 
-6. Acessar no navegador
+Swagger UI disponível em: http://127.0.0.1:8000/docs
 
-http://127.0.0.1:8000/docs
+🐳 Rodando com Docker
 
+Certifique-se de ter Docker e Docker Compose instalados
 
- Testes
+Execute:
 
-Para rodar os testes:
+docker-compose up --build
 
-pytest --cov=app
+A aplicação estará disponível em: http://localhost:8000/docs
 
+O banco PostgreSQL será criado automaticamente via Docker Compose
 
-Cobertura atual: ~90%+
-Testes incluem:
-Listagem de pokémons
-Busca por ID
-Tratamento de erro (não encontrado)
-CRUD básico
+🧪 Testes
 
- Docker
+Para rodar os testes unitários:
 
-Build da imagem
+pytest
 
-docker build -t pokemon-api .
+Cobrem:
 
-Rodar container
+Sucesso dos endpoints
+Erros (404, dados inexistentes)
 
-docker run -p 8000:8000 pokemon-api
+Paginação
 
- CI/CD
+Testes usam mocks para isolar chamadas à PokeAPI
 
-O projeto utiliza GitHub Actions para:
+🌐 Deploy
 
-Instalar dependências
-Rodar testes automaticamente
-Verificar qualidade do código
+A API pode ser publicada em serviços como Render
+ ou Railway.
 
-O deploy é feito automaticamente no Render a cada push na branch main.
+Link de produção (exemplo):
 
- Tecnologias utilizadas
+https://pokemon-api-tec5.onrender.com/docs
 
-Python 3.13
-FastAPI
-Uvicorn
-Requests
-Pytest
-Pytest-cov
-Docker
-GitHub Actions
-Render
+🔍 Exemplos de uso
 
- Observações
+Listar Pokémons (paginação)
 
-Os dados são consumidos diretamente da PokeAPI
-Operações de criação, atualização e exclusão são simuladas localmente (sem persistência em banco)
-A API segue boas práticas REST e organização de projeto
+GET /pokemons?limit=20&offset=0
+
+Resposta:
+
+{
+  "data": [
+    {
+      "name": "pikachu",
+      "id": 25,
+      "height": 4,
+      "weight": 60,
+      "types": ["electric"],
+      "sprites": {}
+    }
+  ],
+  "pagination": {
+    "total": null,
+    "limit": 20,
+    "offset": 0,
+    "next": "/pokemons?limit=20&offset=20",
+    "previous": null
+  }
+}
+Detalhes de um Pokémon
+
+GET /pokemons/25
+
+{
+  "name": "pikachu",
+  "id": 25,
+  "height": 4,
+  "weight": 60,
+  "types": ["electric"],
+  "sprites": {}
+}
+📂 Estrutura do projeto
+API.Final/
+├─ app/
+│  ├─ main.py
+│  ├─ models.py
+│  ├─ crud.py
+│  ├─ database.py
+│  ├─ schemas.py
+│  └─ services/pokeapi.py
+├─ tests/
+│  └─ test_main.py
+├─ .env
+├─ .env.test
+├─ Dockerfile
+├─ docker-compose.yml
+├─ requirements.txt
+└─ README.md
+
+🔧 Boas práticas
+
+Variáveis de ambiente para configuração de banco
+Testes isolados e com mocks
+Docker Compose para desenvolvimento e produção
+Documentação automática com Swagger
+CI/CD via GitHub Actions
