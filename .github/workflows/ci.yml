@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI
 
 on:
   push:
@@ -10,35 +10,40 @@ jobs:
   test-and-lint:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      # 1️⃣ Checa o código do repositório
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      # 2️⃣ Configura Python 3.13
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.13
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.13
 
-      # 3️⃣ Instala dependências
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest-cov flake8
+    - name: Install dependencies
+      run: |
+        python -m venv .venv
+        .venv/bin/pip install --upgrade pip
+        .venv/bin/pip install -r requirements.txt
 
-      # 4️⃣ Lint com flake8
-      - name: Lint with flake8
-        run: flake8 app tests
+    - name: Run lint
+      run: .venv/bin/flake8 app tests
 
-      # 5️⃣ Roda os testes com pytest e cobertura
-      - name: Run tests
-        run: pytest --cov=app tests/
-
-      # 6️⃣ Upload do relatório de cobertura
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: htmlcov/
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/test_db
+      run: .venv/bin/pytest --cov=app tests/
+      
