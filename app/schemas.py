@@ -1,10 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class PokemonBase(BaseModel):
-    nome: str
-    tipo: str
-    nivel: int
+    name: str
+    type: str
 
 
 class PokemonCreate(PokemonBase):
@@ -14,5 +13,4 @@ class PokemonCreate(PokemonBase):
 class Pokemon(PokemonBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

@@ -1,22 +1,19 @@
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
+from fastapi import status
 
 
-def test_read_pokemons():
-    response = client.get("/pokemons/")
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
+def test_create_and_read_pokemons(client):
+    pokemon_data = {"name": "Pikachu", "type": "Electric"}
 
+    response = client.post("/pokemons/", json=pokemon_data)
+    assert response.status_code == status.HTTP_200_OK
 
-def test_create_pokemon():
-    response = client.post(
-        "/pokemons/",
-        json={"nome": "Pikachu", "tipo": "Eletrico", "nivel": 10},
-    )
-    assert response.status_code == 200
     data = response.json()
-    assert data["nome"] == "Pikachu"
-    assert data["tipo"] == "Eletrico"
-    assert data["nivel"] == 10
+    assert data["name"] == "Pikachu"
+    assert data["type"] == "Electric"
+    assert "id" in data
+
+    response = client.get("/pokemons/")
+    assert response.status_code == status.HTTP_200_OK
+
+    pokemons = response.json()
+    assert any(p["name"] == "Pikachu" for p in pokemons)
