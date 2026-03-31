@@ -1,0 +1,5 @@
+{
+  "tests/test_pokemon.py::test_crud": true,
+  "tests/test_main.py::test_create_and_read_pokemons": true,
+  "tests/test_pokemon.py::test_get_pokemon": true
+}

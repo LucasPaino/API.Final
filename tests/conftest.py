@@ -6,17 +6,21 @@ from app.db.dependencies import get_db
 from app.db.base import Base
 from app.main import app
 
-# Banco de teste SQLite
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+SQLALCHEMY_TEST_URL = "sqlite:///./test.db"
+
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_TEST_URL, connect_args={"check_same_thread": False}
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Criar todas as tabelas de teste
-Base.metadata.create_all(bind=engine)
 
-# Sobrescrever get_db para usar o banco de teste
+@pytest.fixture(scope="function", autouse=True)
+def setup_db():
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+
+
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -24,7 +28,9 @@ def override_get_db():
     finally:
         db.close()
 
+
 app.dependency_overrides[get_db] = override_get_db
+
 
 @pytest.fixture(scope="module")
 def client():
