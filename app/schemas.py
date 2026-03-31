@@ -1,16 +1,12 @@
-from pydantic import BaseModel, ConfigDict
-
+from pydantic import BaseModel
 
 class PokemonBase(BaseModel):
     name: str
-    type: str
+    height: int
+    weight: int
 
+    class Config:
+        orm_mode = True
 
-class PokemonCreate(PokemonBase):
-    pass
-
-
-class Pokemon(PokemonBase):
+class PokemonResponse(PokemonBase):
     id: int
-
-    model_config = ConfigDict(from_attributes=True)
