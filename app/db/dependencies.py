@@ -1,7 +1,8 @@
 # app/db/dependencies.py
 from typing import Generator
 from sqlalchemy.orm import Session
-from app.db.database import SessionLocal  # ✅ import correto, sem circularidade
+from app.db.database import SessionLocal
+
 
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
