@@ -28,8 +28,7 @@ API RESTful em Python que consome dados da [PokéAPI](https://pokeapi.co/) e dis
 - Persistência com banco relacional via SQLAlchemy ORM
 - Consumo direto da PokéAPI com cache local no banco
 - Testes unitários com mocks
-- CI/CD com GitHub Actions
-- Deploy automático no Render
+- CI/CD com GitHub Actions e deploy automático no Render
 
 ---
 
@@ -97,6 +96,16 @@ pytest --cov=app tests/
 
 ---
 
+## CI/CD
+
+O projeto utiliza **GitHub Actions** para integração e entrega contínua:
+
+- A cada `push` na branch `main` o pipeline roda automaticamente
+- **CI:** instala dependências, executa lint com flake8 e roda os testes com pytest
+- **CD:** após o CI passar, o deploy é feito automaticamente no Render via Deploy Hook
+
+---
+
 ## Endpoints
 
 ### `GET /pokemons`
@@ -117,8 +126,8 @@ Lista pokémons com paginação.
       "weight": 60,
       "types": ["electric"],
       "sprites": {
-        "front_default": "https://raw.githubusercontent.com/...",
-        "back_default": "https://raw.githubusercontent.com/..."
+        "front_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+        "back_default": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png"
       }
     }
   ],
@@ -134,21 +143,6 @@ Lista pokémons com paginação.
 
 ### `GET /pokemons/{id}`
 Retorna detalhes de um pokémon específico.
-
-**Resposta:**
-```json
-{
-  "id": 25,
-  "name": "pikachu",
-  "height": 4,
-  "weight": 60,
-  "types": ["electric"],
-  "sprites": {
-    "front_default": "https://raw.githubusercontent.com/...",
-    "back_default": "https://raw.githubusercontent.com/..."
-  }
-}
-```
 
 ### `POST /pokemons`
 Cria um novo pokémon no banco de dados.
